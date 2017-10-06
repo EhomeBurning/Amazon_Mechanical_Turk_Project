@@ -1,0 +1,56 @@
+
+import re
+import random
+from facepy import GraphAPI
+from urllib.request import urlopen
+
+
+
+graph = GraphAPI("EAACEdEose0cBAEePmJV8qLZC8vsVbOlCoIaZCtr1Oy2aehjtZAOZC0pZCkVZAcDXdlEC57BFmqlhVBFwkStg7BBEKxeg9Y0YogxZBHvvQg14grun8loHvLBZC6NBb5NuvZAjxpfILWZCHaSQVgFFURAZCRPLo8ZC6ZCZBySSbayZBiVu8b7YmQtnfR9gVWZA13ZAcf8HiZCDjqD0ipBi3PuQZDZD")
+
+# Get my latest posts
+doc=graph.get('nytimes/posts?fields=id,message,comments,created_time&since=2017-09-20&until=2017-09-26')
+data=doc.get('data',None)
+comments=[]
+nested_comments=[]
+cid=[]
+pid=[]
+
+emoji_pattern = re.compile(
+    u"[\U00010000-\U0001ffff]|"
+    u"[\u2764]"
+    "+", flags=re.UNICODE)
+def remove_emoji(text):
+    return emoji_pattern.sub(r'', text)
+
+
+
+
+for i in range(len(data)):
+    comments.append(data[i].get('message',None))
+    nest1=data[i].get('comments',None)
+    nest=nest1.get('data',None)
+    for i in range(len(nest)):
+        com=remove_emoji(nest[i].get('message', None))
+        comment_id=nest[i].get('id', None)
+        poster=nest[i].get('from', None)
+        post_id=poster.get('id',None)
+        nested_comments.append(com)
+        cid.append(comment_id)
+        pid.append(post_id)
+test=nested_comments
+
+list=(range(len(nested_comments)))
+sample=random.sample(list, 100)
+
+for i in range(len(test)):
+    print(test[i])
+with open('si618_f17_lab5_number_of_comments_zhangao_changbai.txt','w') as question2:
+    question2.write(len(nested_comments))
+
+with open('si618_f17_lab5_random_sample_100_comments_zhangao_changbai.csv','w') as question1:
+    question1.write('comments,comment_id,post_id\n')
+    for i in sample:
+        question1.write(nested_comments[i]+','+cid[i]+','+pid[i]+'\n')
+
+
